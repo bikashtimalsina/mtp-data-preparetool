@@ -1,5 +1,6 @@
 import numpy as np
 import outcar_process as ops 
+from ase import Atoms
 data=ops.mtpoutcar("./OUTCAR")
 sysinfo=data.get_sysinfo_energy()
 nions=sysinfo['ions']
@@ -18,6 +19,14 @@ position_energy=data.get_pos_forces(nions)
 posenergy=position_energy['position-force']
 shuf_trajec=[i for i in range(len(energy))]
 np.random.shuffle(shuf_trajec)
+# Write in Atom object for each configuration/trajectory and
+# get minimal distance using ASE
+min_dist=[]
+for i in range(len(energy)):
+    newcfg=Atoms(cell=direct_lattice[i],positions=posenergy[i][:,0:3],pbc=[1,1,1])
+    flat_distance_array=np.unique(np.array(newcfg.get_all_distances()).reshape((1,nions*nions))[0])
+    min_distance=flat_distance_array[1]
+    min_dist.append(min_distance)
 with open("data.cfg","w") as file:
     for i in range(len(energy)):
         file.writelines("BEGIN_CFG")
@@ -48,6 +57,8 @@ with open("data.cfg","w") as file:
         file.writelines("\t\t {:.8f} \t {:.8f} \t {:.8f} \t {:.8f} \t {:.8f} \t {:.8f}".format(stress[shuf_trajec[i]][0],stress[shuf_trajec[i]][1],stress[shuf_trajec[i]][2],stress[shuf_trajec[i]][3],stress[shuf_trajec[i]][4],stress[shuf_trajec[i]][5]))
         file.writelines("\n")
         file.writelines(" Feature   EFS_by   VASP")
+        file.writelines("\n")
+        file.writelines(" Feature   mindist  {:.8f}".format(min_dist[shuf_trajec[i]]))
         file.writelines("\n")
         file.writelines("END_CFG")
         file.writelines("\n")
