@@ -16,6 +16,8 @@ lattice=data.get_lattice_vectors()
 direct_lattice=lattice['direct']
 position_energy=data.get_pos_forces(nions)
 posenergy=position_energy['position-force']
+shuf_trajec=[i for i in range(len(energy))]
+np.random.shuffle(shuf_trajec)
 with open("data.cfg","w") as file:
     for i in range(len(energy)):
         file.writelines("BEGIN_CFG")
@@ -27,23 +29,23 @@ with open("data.cfg","w") as file:
         file.writelines(" Supercell")
         file.writelines("\n")
         for j in range(3):
-            file.writelines("\t\t {:.6f}\t {:.6f}\t {:.6f}".format(direct_lattice[i][j][0],direct_lattice[i][j][1],direct_lattice[i][j][2]))
+            file.writelines("\t\t {:.6f}\t {:.6f}\t {:.6f}".format(direct_lattice[shuf_trajec[i]][j][0],direct_lattice[shuf_trajec[i]][j][1],direct_lattice[shuf_trajec[i]][j][2]))
             file.writelines("\n")
         file.writelines(" AtomData:  id type       cartes_x      cartes_y      cartes_z           fx          fy          fz")
         file.writelines("\n")
         for k in range(nions):
             nid='{0: <4}'.format(str(k+1))
             attype='{0: <4}'.format(str(typemtp[k]))
-            file.writelines("\t\t\t {} \t {} \t {:.8f} \t {:.8f} \t {:.8f} \t {:.8f} \t {:.8f} \t {:.8f}".format(nid,attype,posenergy[i][k,0],posenergy[i][k,1],\
-            posenergy[i][k,2],posenergy[i][k,3],posenergy[i][k,4],posenergy[i][k,5]))
+            file.writelines("\t\t\t {} \t {} \t {:.8f} \t {:.8f} \t {:.8f} \t {:.8f} \t {:.8f} \t {:.8f}".format(nid,attype,posenergy[shuf_trajec[i]][k,0],posenergy[shuf_trajec[i]][k,1],\
+            posenergy[shuf_trajec[i]][k,2],posenergy[shuf_trajec[i]][k,3],posenergy[shuf_trajec[i]][k,4],posenergy[shuf_trajec[i]][k,5]))
             file.writelines("\n")
         file.writelines(" Energy")
         file.writelines("\n")
-        file.writelines("\t {}".format(energy[i]))
+        file.writelines("\t {}".format(energy[shuf_trajec[i]]))
         file.writelines("\n")
         file.writelines(" PlusStress:  xx          yy          zz          yz          xz          xy")
         file.writelines("\n")
-        file.writelines("\t\t {:.8f} \t {:.8f} \t {:.8f} \t {:.8f} \t {:.8f} \t {:.8f}".format(stress[i][0],stress[i][1],stress[i][2],stress[i][3],stress[i][4],stress[i][5]))
+        file.writelines("\t\t {:.8f} \t {:.8f} \t {:.8f} \t {:.8f} \t {:.8f} \t {:.8f}".format(stress[shuf_trajec[i]][0],stress[shuf_trajec[i]][1],stress[shuf_trajec[i]][2],stress[shuf_trajec[i]][3],stress[shuf_trajec[i]][4],stress[shuf_trajec[i]][5]))
         file.writelines("\n")
         file.writelines(" Feature   EFS_by   VASP")
         file.writelines("\n")
